@@ -1,5 +1,7 @@
-#include<bits/stdc++.h>
+#include <iostream>
+#include <ctime>
 using namespace std;
+
 enum Colour
 {
 	RED,
@@ -97,112 +99,123 @@ inline void rrotate(RBTreeNode *u)
  
 void RBTreeFix(RBTreeNode *v)
 {
-	RBTreeNode *u = v->_father;
-	RBTreeNode *gu = u->_father;
-	
-	if (gu->_left == u && u->_left == v)
+	while (true)
 	{
-		if (gu->_right->_col == BLACK)
+		RBTreeNode* u = v->_father;
+		RBTreeNode* gu = u->_father;
+
+		if (gu->_left == u && u->_left == v)
 		{
-			rrotate(u);
-			gu->_col = RED;
-			u->_col = BLACK;
-		}
-		else
-		{
-			gu->_right->_col = BLACK;
-			u->_col = BLACK;
-			if (gu != mroot)
+			if (gu->_right->_col == BLACK)
 			{
+				rrotate(u);
 				gu->_col = RED;
-				if (gu->_father->_col == RED)
-					RBTreeFix(gu);
+				u->_col = BLACK;
 			}
 			else
 			{
-				maxb++;
-			}
-		}
-	}
-	else if (gu->_left == u && u->_right == v)
-	{
-		if (gu->_right->_col == BLACK)
-		{
-			lrotate(v);
-			rrotate(v);
-			gu->_col = RED;
-			v->_col = BLACK;
-		}
-		else
-		{
-			gu->_right->_col = BLACK;
-			u->_col = BLACK;
-			if (gu != mroot)
-			{
-				gu->_col = RED;
-				if (gu->_father->_col == RED)
+				gu->_right->_col = BLACK;
+				u->_col = BLACK;
+				if (gu != mroot)
 				{
-					RBTreeFix(gu);
+					gu->_col = RED;
+					if (gu->_father->_col == RED)
+					{
+						//RBTreeFix(gu);
+						v = gu;
+						continue;
+					}
+				}
+				else
+				{
+					maxb++;
 				}
 			}
+		}
+		else if (gu->_left == u && u->_right == v)
+		{
+			if (gu->_right->_col == BLACK)
+			{
+				lrotate(v);
+				rrotate(v);
+				gu->_col = RED;
+				v->_col = BLACK;
+			}
 			else
 			{
-				maxb++;
+				gu->_right->_col = BLACK;
+				u->_col = BLACK;
+				if (gu != mroot)
+				{
+					gu->_col = RED;
+					if (gu->_father->_col == RED)
+					{
+						v = gu;
+						continue;
+					}
+				}
+				else
+				{
+					maxb++;
+				}
 			}
 		}
-	}
-	else if (gu->_right == u && u->_left == v)
-	{
-		if (gu->_left->_col == BLACK)
+		else if (gu->_right == u && u->_left == v)
 		{
-			rrotate(v);
-			lrotate(v);
-			v->_col = BLACK;
-			gu->_col = RED;
+			if (gu->_left->_col == BLACK)
+			{
+				rrotate(v);
+				lrotate(v);
+				v->_col = BLACK;
+				gu->_col = RED;
+			}
+			else
+			{
+				gu->_left->_col = BLACK;
+				u->_col = BLACK;
+				if (gu != mroot)
+				{
+					gu->_col = RED;
+					if (gu->_father->_col == RED)
+					{
+						v = gu;
+						continue;
+					}
+				}
+				else
+				{
+					maxb++;
+				}
+			}
 		}
 		else
 		{
-			gu->_left->_col = BLACK;
-			u->_col = BLACK;
-			if (gu != mroot)
+			if (gu->_left->_col == BLACK)
 			{
+				lrotate(u);
+				u->_col = BLACK;
 				gu->_col = RED;
-				if (gu->_father->_col == RED)
-				{
-					RBTreeFix(gu);
-				}
 			}
 			else
 			{
-				maxb++;
-			}
-		}
-	}
-	else
-	{
-		if (gu->_left->_col == BLACK)
-		{
-			lrotate(u);
-			u->_col = BLACK;
-			gu->_col = RED;
-		}
-		else
-		{
-			gu->_left->_col = BLACK;
-			u->_col = BLACK;
-			if (gu != mroot)
-			{
-				gu->_col = RED;
-				if (gu->_father->_col == RED)
+				gu->_left->_col = BLACK;
+				u->_col = BLACK;
+				if (gu != mroot)
 				{
-					RBTreeFix(gu);
+					gu->_col = RED;
+					if (gu->_father->_col == RED)
+					{
+						v = gu;
+						continue;
+					}
+				}
+				else
+				{
+					maxb++;
 				}
 			}
-			else
-			{
-				maxb++;
-			}
 		}
+		break;
 	}
 }
  
@@ -447,6 +460,12 @@ void preorder(RBTreeNode *u, int bstep)
 		cout << "false" << endl;
 	preorder(u->_right, bstep);
 }
+
+int getRand()
+{
+	int mymod = (1 << 15);
+	return ((rand() % mymod) << 15) + (rand() % mymod);
+}
 int main()
 {
 	//cout << RAND_MAX << endl;
@@ -456,25 +475,32 @@ int main()
 	NilT = new RBTreeNode(0, 0);
 	NilT->_col = BLACK;
 	mroot = NilT;
-	for (int i = 0; i < 32767; i++)
-		minsert(mroot, rand(), rand() % 200000);
-	if (mroot->_col != BLACK)
-		cout << "false" << endl;
-	preorder(mroot, 0);
- 
-	cout << maxb << " " << nnum << endl;
-	for (int i = 0; i < 32767; i++)
+	for (int j = 0; j < 10; j++)
 	{
-		RBTreeNode *y = mfind(mroot, rand());
-		if (y != NULL)
+		for (int i = 0; i < 32767; i++)
 		{
-			y = RBTreeDelete(y);
-			delete y;
+			minsert(mroot, getRand(), getRand());
+			if (i % 100 == 0)
+				preorder(mroot, 0);
 		}
-		if (i % 100 == 0)
-			preorder(mroot, 0);
+		if (mroot->_col != BLACK)
+			cout << "false" << endl;
+		preorder(mroot, 0);
+
+		cout << maxb << " " << nnum << endl;
+		for (int i = 0; i < 32767; i++)
+		{
+			RBTreeNode* y = mfind(mroot, getRand());
+			if (y != NULL)
+			{
+				y = RBTreeDelete(y);
+				delete y;
+			}
+			if (i % 100 == 0)
+				preorder(mroot, 0);
+		}
+		cout << maxb << " " << nnum << endl;
 	}
-	cout << maxb << " " << nnum << endl;
 	//cout << "Yes" << endl;
 	//system("pause");
 }
